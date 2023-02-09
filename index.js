@@ -33,7 +33,8 @@ render(app, {
   debug: false,
 });
 
-const apiKey = "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";
+
+const apiKey="";
 const configuration = new Configuration({
   apiKey: apiKey,
 });
