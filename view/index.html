@@ -1,0 +1,29 @@
+
+
+<div id="app" class="container-sm ">
+   <div class="row">
+      <div class="col">
+         <ul class="list-group">
+            <li :class="'list-group-item list-group-item-'+(index%2==0?'':'info')" v-for="(item,index)  in messages">
+               <i v-if="index%2==0" class="fa-duotone fa-block-question"></i>
+               <i v-if="index%2==1" class="fa-solid fa-money-bill-transfer"></i>
+               {{item}}
+            </li>                
+         </ul>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col">
+         <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="请输入你的问题"
+               v-model="message"
+            >
+            <button :disabled="!message" class="btn btn-info" type="button" @click="sendQuestion" >
+               <i class="fa-solid fa-cloud-word"></i>提问
+            </button>
+          </div>
+      </div>
+   </div> 
+   
+</div>
+
