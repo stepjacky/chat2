@@ -1,5 +1,6 @@
 const { Configuration, OpenAIApi } = require("openai");
 const Koa = require("koa");
+const bodyParser = require('koa-bodyparser');
 const session = require('koa-session');
 const app = new Koa();
 const Router = require('@koa/router');
@@ -33,28 +34,21 @@ render(app, {
   debug: false,
 });
 
-
-const apiKey="";
+app.use(bodyParser());
+//const apiKey = "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";
+const apiKey = "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";
 const configuration = new Configuration({
   apiKey: apiKey,
 });
 const openai = new OpenAIApi(configuration);
 
 router.get('/', async (ctx, next) => {
-  let n = ctx.session;
-  console.log(n);
   await ctx.render("index");
 });
-router.get('/ask', reqAsk);
-app
-  .use(router.routes())
-  .use(router.allowedMethods());
-app.listen(3000);
-
-
-async function reqAsk(ctx, next) {
+router.post('/ask', async (ctx, next) => {
   try {
-    const q = ctx.query.q;
+    console.log(ctx.request.body);
+   
     if (q) {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -66,10 +60,18 @@ async function reqAsk(ctx, next) {
         presence_penalty: 0.0,
         stop: ["\r"],
       });
-      ctx.body= response.data.choices[0].text;
+      ctx.body = response.data.choices[0].text;
       next();
     }
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
   }
-}
+});
+app
+  .use(router.routes())
+  .use(router.allowedMethods({
+    throw: true,
+    notImplemented: () => new Boom.notImplemented(),
+    methodNotAllowed: () => new Boom.methodNotAllowed()
+  }));
+app.listen(3000);
