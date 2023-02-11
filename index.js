@@ -1,13 +1,17 @@
 const { Configuration, OpenAIApi } = require("openai");
 const Koa = require("koa");
-const bodyParser = require('koa-bodyparser');
 const session = require('koa-session');
 const app = new Koa();
 const Router = require('@koa/router');
-const router = new Router();
+const { koaBody } = require('koa-body');
+
+
 const render = require("@koa/ejs");
 const path = require("path");
-const serve = require('koa-static')
+const serve = require('koa-static');
+const Boom = require("boom");
+const JSON5 = require('json5');
+
 
 app.keys = ['chapt'];
 const CONFIG = {
@@ -34,7 +38,7 @@ render(app, {
   debug: false,
 });
 
-app.use(bodyParser());
+app.use(koaBody());
 //const apiKey = "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";
 const apiKey = "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";
 const configuration = new Configuration({
@@ -42,13 +46,13 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-router.get('/', async (ctx, next) => {
-  await ctx.render("index");
-});
-router.post('/ask', async (ctx, next) => {
+const router = new Router();
+router.post('/ask',async (ctx, next) => {
   try {
-    console.log(ctx.request.body);
    
+    const bobj =  JSON5.parse(ctx.request.body)
+   
+    const q = bobj.q;
     if (q) {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
@@ -66,6 +70,9 @@ router.post('/ask', async (ctx, next) => {
   } catch (error) {
     console.log(error);
   }
+});
+router.get('/', async (ctx, next) => {
+  await ctx.render("index");
 });
 app
   .use(router.routes())
